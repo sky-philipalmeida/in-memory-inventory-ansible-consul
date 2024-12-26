@@ -1,0 +1,38 @@
+# +--------------------------------
+# | Action Plugin (in_memory_inventory)
+# | Build in-memmory inventory
+# +--------------------------------
+
+- name: Action Plugin (in_memory_inventory)
+
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+
+    - name: Load GlusterFS nodes
+      in_memory_inventory:
+        consul: "{{ consul }}"
+        groups: "glusterfs"
+        node_meta:
+          product: "glusterfs"
+
+# +--------------------------------
+# | This will run operations
+# +--------------------------------
+
+- name: Process
+
+  hosts: all:!localhost
+  gather_facts: false
+
+  tasks:
+
+    - name: Dump inventory hostnames for glusterfs group
+      ansible.builtin.debug:
+        msg: '{{ hostvars[inventory_hostname]["node_meta"].hostname }}'
+      when:
+        - inventory_hostname in lookup('inventory_hostnames', 'glusterfs')
